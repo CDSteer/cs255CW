@@ -21,6 +21,7 @@ public class Example extends JFrame {
     BufferedImage image1, image2, image3; //storing the image in memory
 	short cthead[][][]; //store the 3D volume data set
 	short min, max; //min/max value in the 3D volume data set
+    short myMaximum;
 
     /*
         This function sets up the GUI and reads the data set
@@ -151,15 +152,15 @@ public class Example extends JFrame {
          public void stateChanged(ChangeEvent e) {
             if (e.getSource() == zslice_slider) {
                 System.out.println(zslice_slider.getValue());
-                image1=MIP(image1);
+                image1=sliderMIP(image1);
                 image_icon1.setIcon(new ImageIcon(image1));
             }
             if (e.getSource() == yslice_slider) {
-                image2=MIP2(image2);
+                image2=sliderMIP2(image2);
                 image_icon2.setIcon(new ImageIcon(image2));
             }
             if (e.getSource() == xslice_slider) {
-                image3=MIP3(image3);
+                image3=sliderMIP3(image3);
                 image_icon3.setIcon(new ImageIcon(image3));
             }
 
@@ -177,14 +178,14 @@ public class Example extends JFrame {
             if (event.getSource() == mip_button2) {
                 //e.g. do something to change the image here
                 // Call MIP function
-                image2 = MIP(image2);
+                image2 = MIP2(image2);
                 // Update image
                 image_icon2.setIcon(new ImageIcon(image2));
             }
             if (event.getSource() == mip_button3) {
                 //e.g. do something to change the image here
                 // Call MIP function
-                image3 = MIP(image3);
+                image3 = MIP3(image3);
                 // Update image
                 image_icon3.setIcon(new ImageIcon(image3));
             }
@@ -212,7 +213,7 @@ public class Example extends JFrame {
         the image carrying out the copying of a slice of data into the
     	image.
     */
-    public BufferedImage MIP(BufferedImage image) {
+    public BufferedImage sliderMIP(BufferedImage image) {
         //Get image dimensions, and declare loop variables
         int w=image.getWidth(), h=image.getHeight(), i, j, c, k;
         //Obtain pointer to data for fast processing
@@ -243,7 +244,7 @@ public class Example extends JFrame {
         return image;
     }
 
-    public BufferedImage MIP2(BufferedImage image) {
+    public BufferedImage sliderMIP2(BufferedImage image) {
         int w=image.getWidth(), h=image.getHeight(), i, j, c, k;
         byte[] data = GetImageData(image);
         float col;
@@ -260,7 +261,7 @@ public class Example extends JFrame {
         return image;
     }
 
-    public BufferedImage MIP3(BufferedImage image) {
+    public BufferedImage sliderMIP3(BufferedImage image) {
         int w=image.getWidth(), h=image.getHeight(), i, j, c, k;
         byte[] data = GetImageData(image);
         float col;
@@ -276,6 +277,93 @@ public class Example extends JFrame {
         }
         return image;
     }
+
+    public BufferedImage MIP(BufferedImage image) {
+        //Get image dimensions, and declare loop variables
+        int w=image.getWidth(), h=image.getHeight(), i, j, c, k;
+        //Obtain pointer to data for fast processing
+        byte[] data = GetImageData(image);
+        float col;
+        short datum = 0;
+        //Shows how to loop through each pixel and colour
+        //Try to always use j for loops in y, and i for loops in x
+        //as this makes the code more readable
+        for (j=0; j<h; j++) {
+            for (i=0; i<w; i++) {
+                myMaximum = 0;
+                for (k=0; k < 112; k++) {
+                    //at this point (i,j) is a single pixel in the image
+                    //here you would need to do something to (i,j) if the image size
+                    //does not match the slice size (e.g. during an image resizing operation
+                    //If you don't do this, your j,i could be outside the array bounds
+                    //In the framework, the image is 256x256 and the data set slices are 256x256
+                    //so I don't do anything - this also leaves you something to do for the assignment
+                    datum=cthead[k][j][i]; //get values from slice 76 (change this in your assignment)
+                    if (myMaximum < datum){
+                        myMaximum = datum;
+                    }
+                    //calculate the colour by performing a mapping from [min,max] -> [0,255]
+                    col=(255.0f*((float)myMaximum-(float)min)/((float)(max-min)));
+                    for (c=0; c<3; c++) {
+                        //and now we are looping through the bgr components of the pixel
+                        //set the colour component c of pixel (i,j)
+                        data[c+3*i+3*j*w] = (byte)col;
+                    } // colour loop
+                }
+            } // column loop
+        } // row loop
+        return image;
+    }
+
+    public BufferedImage MIP2(BufferedImage image) {
+        int w=image.getWidth(), h=image.getHeight(), i, j, c, k;
+        byte[] data = GetImageData(image);
+        float col;
+        short datum;
+
+        for (j=0; j < h; j++) {
+            for (i=0; i < w; i++) {
+                myMaximum = 0;
+                for (k=0; k < 256; k++) {
+                    datum=cthead[j][k][i];
+                    if (myMaximum < datum){
+                        myMaximum = datum;
+                    }
+                    col=(255.0f*((float)myMaximum-(float)min)/((float)(max-min)));
+                    for (c=0; c<3; c++) {
+                        data[c+3*i+3*j*w]=(byte) col;
+                    }
+                }
+            }
+
+        }
+        return image;
+    }
+
+    public BufferedImage MIP3(BufferedImage image) {
+        int w=image.getWidth(), h=image.getHeight(), i, j, c, k;
+        byte[] data = GetImageData(image);
+        float col;
+        short datum;
+        for (j=0; j<h; j++) {
+            for (i=0; i<w; i++) {
+                myMaximum = 0;
+                for (k=0; k<112; k++) {
+                    datum=cthead[i][j][k];
+                    if (myMaximum < datum){
+                        myMaximum = datum;
+                    }
+                    col=(255.0f*((float)myMaximum-(float)min)/((float)(max-min)));
+                    for (c=0; c<3; c++) {
+                        data[c+3*i+3*j*w]=(byte) col;
+                    }
+                }
+            }
+        }
+        return image;
+    }
+
+
 
     public static void main(String[] args) throws IOException {
 
