@@ -4,3 +4,5 @@
 *.jar
 *.war
 *.ear
+
+cthead/.DS_Store
