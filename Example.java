@@ -1,3 +1,5 @@
+// Cameron Steer - 705784
+
 import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
