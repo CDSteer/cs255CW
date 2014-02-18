@@ -12,7 +12,7 @@ import java.util.Arrays;
 // a volume data class?
 // I won't give extra marks for that though.
 public class Example extends JFrame {
-    JFrame thumbnailFrame;
+    JFrame thumbnailFrame, reFrame;
     JFrame mainFrame;
     JFrame newFrame;
     JButton mip_button1; //an example button to switch to MIP mode
@@ -38,9 +38,10 @@ public class Example extends JFrame {
     int[] t;
     int[] mapping;
     JLabel bigThumb = new JLabel();
+    JLabel instruction;
 
 
-	JSlider zslice_slider, yslice_slider, xslice_slider, resize_slider1, resize_slider2, resize_slider3; //sliders to step through the slices z and y directions) (remember 113 slices in z direction 0-112)
+	JSlider zslice_slider, yslice_slider, xslice_slider, resize_slider1, resize_slider2, resize_slider3, resize_sliderMain; //sliders to step through the slices z and y directions) (remember 113 slices in z direction 0-112)
     BufferedImage image1, image2, image3, iconImage, imageBig; //storing the image in memory
 	short cthead[][][]; //store the 3D volume data set
 	short min, max; //min/max value in the 3D volume data set
@@ -58,7 +59,7 @@ public class Example extends JFrame {
 		image2 = new BufferedImage(256, 113, BufferedImage.TYPE_3BYTE_BGR);
         image3 = new BufferedImage(256, 113, BufferedImage.TYPE_3BYTE_BGR);
 
-        imageBig = new BufferedImage(400, 400, BufferedImage.TYPE_3BYTE_BGR);
+        imageBig = new BufferedImage(512, 512, BufferedImage.TYPE_3BYTE_BGR);
 
 		//Read the data quickly via a buffer (in C++ you can just do a single fread - I couldn't find the equivalent in Java)
 		DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
@@ -106,7 +107,6 @@ public class Example extends JFrame {
         // Then our image (as a label icon)
         image_icon1 = new JLabel(new ImageIcon(image1));
         c.weightx = 500;
-        c.weighty = 500;
         c.gridx = 0;
         c.gridy = 0;
         pane.add(image_icon1, c);
@@ -119,6 +119,8 @@ public class Example extends JFrame {
         c.gridx = 0;
         c.gridy = 1;
         pane.add(mip_button1, c);
+
+        instruction = new JLabel("Click Thumbnail to see actual size");
 
         zslice_slider = new JSlider(0,112);
         //Add labels (y slider as example)
@@ -152,20 +154,19 @@ public class Example extends JFrame {
         resize_slider1 = new JSlider(1,512);
         //Add labels (y slider as example)
         resize_slider1.setMajorTickSpacing(100);
-        resize_slider1.setMinorTickSpacing(1);
+        resize_slider1.setMinorTickSpacing(10);
         resize_slider1.setPaintTicks(true);
         resize_slider1.setPaintLabels(true);
-        resize_slider1.setValue(256);
+        resize_slider1.setValue(512);
         c.weightx = 500;
         c.weighty = 500;
         c.gridx = 3;
-        c.gridy = 4;
+        c.gridy = 3;
         pane.add(resize_slider1, c);
 
 
         image_icon2 = new JLabel(new ImageIcon(image2));
         c.weightx = 500;
-        c.weighty = 500;
         c.gridx = 1;
         c.gridy = 0;
         pane.add(image_icon2, c);
@@ -212,16 +213,15 @@ public class Example extends JFrame {
         resize_slider2.setMinorTickSpacing(10);
         resize_slider2.setPaintTicks(true);
         resize_slider2.setPaintLabels(true);
-        resize_slider2.setValue(256);
+        resize_slider2.setValue(512);
         c.weightx = 500;
         c.weighty = 500;
         c.gridx = 3;
-        c.gridy = 5;
+        c.gridy = 4;
         pane.add(resize_slider2, c);
 
         image_icon3 = new JLabel(new ImageIcon(image3));
         c.weightx = 500;
-        c.weighty = 500;
         c.gridx = 2;
         c.gridy = 0;
         pane.add(image_icon3, c);
@@ -268,35 +268,35 @@ public class Example extends JFrame {
         resize_slider3.setMinorTickSpacing(10);
         resize_slider3.setPaintTicks(true);
         resize_slider3.setPaintLabels(true);
-        resize_slider3.setValue(256);
+        resize_slider3.setValue(512);
         c.weightx = 500;
         c.weighty = 500;
         c.gridx = 3;
-        c.gridy = 3;
+        c.gridy = 5;
         pane.add(resize_slider3, c);
 
-        image_iconBig = new JLabel();
+        image_iconBig = new JLabel(new ImageIcon(imageBig));
         c.weightx = 500;
         c.weighty = 500;
         c.gridx = 3;
         c.gridy = 0;
         pane.add(image_iconBig, c);
 
-        resize_button1 = new JButton("EnBIGGEN!!");
+        resize_button1 = new JButton("Show in resizer");
         resize_button1.setSize(10, 50);
         c.weightx = 500;
         c.weighty = 500;
         c.gridx = 0;
         c.gridy = 5;
         pane.add(resize_button1, c);
-        resize_button2 = new JButton("EnBIGGEN!!");
+        resize_button2 = new JButton("Show in resizer");
         resize_button2.setSize(10, 50);
         c.weightx = 500;
         c.weighty = 500;
         c.gridx = 1;
         c.gridy = 5;
         pane.add(resize_button2, c);
-        resize_button3 = new JButton("EnBIGGEN!!");
+        resize_button3 = new JButton("Show in resizer");
         resize_button3.setSize(10, 50);
         c.weightx = 500;
         c.weighty = 500;
@@ -336,6 +336,14 @@ public class Example extends JFrame {
         resize_button2.addActionListener(handler);
         resize_button3.addActionListener(handler);
 
+        resize_sliderMain = new JSlider(1,512);
+        resize_sliderMain.setMajorTickSpacing(100);
+        resize_sliderMain.setMinorTickSpacing(10);
+        resize_sliderMain.setPaintTicks(true);
+        resize_sliderMain.setPaintLabels(true);
+        resize_sliderMain.setValue(512);
+        resize_sliderMain.addChangeListener(handler);
+
         // ... and display everything
         mainFrame.pack();
         mainFrame.setLocationRelativeTo(null);
@@ -343,6 +351,19 @@ public class Example extends JFrame {
 
         mainFrame.setVisible(true);
     }
+
+    // public void openResizer(){
+    //     reFrame = new JFrame();
+    //     reFrame.setVisible(true);
+    //     reFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+    //     reFrame.getContentPane().add(image_iconBig = new JLabel(new ImageIcon(imageBig)));
+
+    //     //reFrame.add(resize_sliderMain);
+
+
+    //     reFrame.pack();
+    // }
 
     /*
         This is the event handler for the application
@@ -476,16 +497,16 @@ public class Example extends JFrame {
                 image_icon3.setIcon(new ImageIcon(image));
             }
             if (event.getSource() == resize_button1) {
-                BufferedImage image = resizeTop(image1);
-                image_iconBig.setIcon(new ImageIcon(image));
+                imageBig = resizeTop(image1);
+                image_iconBig.setIcon(new ImageIcon(imageBig));
             }
             if (event.getSource() == resize_button2) {
-                BufferedImage image = resizeFrout(image2);
-                image_iconBig.setIcon(new ImageIcon(image));
+                imageBig = resizeFrout(image2);
+                image_iconBig.setIcon(new ImageIcon(imageBig));
             }
             if (event.getSource() == resize_button3) {
-                BufferedImage image = resizeSide(image3);
-                image_iconBig.setIcon(new ImageIcon(image));
+                imageBig = resizeSide(image3);
+                image_iconBig.setIcon(new ImageIcon(imageBig));
             }
         }
     }
@@ -741,17 +762,12 @@ public class Example extends JFrame {
     }
 
     public BufferedImage resizeTop(BufferedImage image){
-        int w = 256, h = 256, i, j, c, k;
+        int w = image.getWidth(), h = image.getHeight(), i, j, c, k;
         int y, x, xA = w, xB = 512, yA = h, yB = 512;
         BufferedImage newImage = new BufferedImage(yB, xB, BufferedImage.TYPE_3BYTE_BGR);
         byte[] data = GetImageData(newImage);
         float col;
         short datum;
-
-        int y1;
-        int y2;
-        int x1;
-        int x2;
 
         float aI[][][] = new float[h][w][3];
         float bI[][][] = new float[yB][xB][3];
@@ -772,24 +788,23 @@ public class Example extends JFrame {
                     float foo = (float)j * (float)yA / (float)yB;
                     float bar = (float)i * (float)xA / (float)xB;
 
-                    y1 = (int)Math.floor(foo);
-                    y2 = (int)y1 +1;
-                    x1 = (int)Math.floor(bar);
-                    x2 = (int)x1 +1;
+                    int y1 = (int)Math.floor(foo);
+                    int y2 = (int)y1 +1;
+                    int x1 = (int)Math.floor(bar);
+                    int x2 = (int)x1 +1;
 
-                    //System.out.println(y1+", "+x2);
+                    if (y2 < h){
+                        float a = aI[y2][x1][c];
+                        float b = aI[y1][x1][c];
+                        float c1 = aI[y1][x2][c];
+                        float d = aI[y2][x2][c];
 
-                    float a = aI[y2][x1][c];
-                    float b = aI[y1][x1][c];
-                    float c1 = aI[y1][x2][c];
-                    float d = aI[y2][x2][c];
+                        float f = b + (c1 - b) * ((bar-x1)/(x2-x1));
+                        float e = a + (d - a) * ((bar-x1)/(x2-x1));
 
-                    float f = b + (c1 - b) * ((bar-x1)/(x2-x1));
-                    float e = a + (d - a) * ((bar-x1)/(x2-x1));
-
-                    float g = f + (e - f) * ((foo-y1)/(y2-y1));
-
-                    bI[j][i][c] = g;
+                        float g = f + (e - f) * ((foo-y1)/(y2-y1));
+                        bI[j][i][c] = g;
+                    }
                 }
             }
         }
@@ -811,6 +826,8 @@ public class Example extends JFrame {
         float col;
         short datum;
 
+        //System.out.println(h+", "+w);
+
         float aI[][][] = new float[h][w][3];
         float bI[][][] = new float[xB][yB][3];
 
@@ -824,15 +841,28 @@ public class Example extends JFrame {
             }
         }
 
-        for (j=0; j<yB; j++) {
-            for (i=0; i<xB; i++) {
+        for (j=0; j<yB-2; j++) {
+            for (i=0; i<xB-2; i++) {
                 for (c=0; c<3; c++) {
                     float foo = (float)j * (float)yA / (float)yB;
                     float bar = (float)i * (float)xA / (float)xB;
 
-                    y = (int)foo;
-                    x = (int)bar;
-                    bI[j][i][c] = aI[y][x][c];
+                    int y1 = (int)Math.floor(foo);
+                    int y2 = (int)y1 +1;
+                    int x1 = (int)Math.floor(bar);
+                    int x2 = (int)x1 +1;
+                    if (y2 < h){
+                        float a = aI[y2][x1][c];
+                        float b = aI[y1][x1][c];
+                        float c1 = aI[y1][x2][c];
+                        float d = aI[y2][x2][c];
+
+                        float f = b + (c1 - b) * ((bar-x1)/(x2-x1));
+                        float e = a + (d - a) * ((bar-x1)/(x2-x1));
+
+                        float g = f + (e - f) * ((foo-y1)/(y2-y1));
+                        bI[j][i][c] = g;
+                    }
                 }
             }
         }
@@ -856,7 +886,6 @@ public class Example extends JFrame {
 
         float aI[][][] = new float[h][w][3];
         float bI[][][] = new float[xB][yB][3];
-        System.out.println(resize_slider1.getValue());
 
         for (j=0; j<h; j++) {
             for (i=0; i<w; i++) {
@@ -868,15 +897,29 @@ public class Example extends JFrame {
             }
         }
 
-        for (j=0; j<yB; j++) {
-            for (i=0; i<xB; i++) {
+        for (j=0; j<yB-2; j++) {
+            for (i=0; i<xB-2; i++) {
                 for (c=0; c<3; c++) {
                     float foo = (float)j * (float)yA / (float)yB;
                     float bar = (float)i * (float)xA / (float)xB;
 
-                    y = (int)foo;
-                    x = (int)bar;
-                    bI[j][i][c] = aI[y][x][c];
+                    int y1 = (int)Math.floor(foo);
+                    int y2 = (int)y1 +1;
+                    int x1 = (int)Math.floor(bar);
+                    int x2 = (int)x1 +1;
+
+                    if (y2 < h){
+                        float a = aI[y2][x1][c];
+                        float b = aI[y1][x1][c];
+                        float c1 = aI[y1][x2][c];
+                        float d = aI[y2][x2][c];
+
+                        float f = b + (c1 - b) * ((bar-x1)/(x2-x1));
+                        float e = a + (d - a) * ((bar-x1)/(x2-x1));
+
+                        float g = f + (e - f) * ((foo-y1)/(y2-y1));
+                        bI[j][i][c] = g;
+                    }
                 }
             }
         }
@@ -912,15 +955,29 @@ public class Example extends JFrame {
             }
         }
 
-        for (j=0; j<yB; j++) {
-            for (i=0; i<xB; i++) {
+        for (j=0; j<yB-2; j++) {
+            for (i=0; i<xB-2; i++) {
                 for (c=0; c<3; c++) {
                     float foo = (float)j * (float)yA / (float)yB;
                     float bar = (float)i * (float)xA / (float)xB;
 
-                    y = (int)foo;
-                    x = (int)bar;
-                    bI[j][i][c] = aI[y][x][c];
+                    int y1 = (int)Math.floor(foo);
+                    int y2 = (int)y1 +1;
+                    int x1 = (int)Math.floor(bar);
+                    int x2 = (int)x1 +1;
+
+                    if (y2 < h){
+                        float a = aI[y2][x1][c];
+                        float b = aI[y1][x1][c];
+                        float c1 = aI[y1][x2][c];
+                        float d = aI[y2][x2][c];
+
+                        float f = b + (c1 - b) * ((bar-x1)/(x2-x1));
+                        float e = a + (d - a) * ((bar-x1)/(x2-x1));
+
+                        float g = f + (e - f) * ((foo-y1)/(y2-y1));
+                        bI[j][i][c] = g;
+                    }
                 }
             }
         }
@@ -939,13 +996,14 @@ public class Example extends JFrame {
         thumbnailFrame = new JFrame();
         thumbnailFrame.setVisible(true);
         thumbnailFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        thumbnailFrame.setSize(1920,80);
 
 
         JPanel p = new JPanel();
 
         JScrollPane scroll = new JScrollPane(p);
         thumbnailFrame.add(scroll);
-        //p.setLayout(new GridLayout(56, 10));
+        p.add(instruction);
 
 
         for(int i =0; i<112; i++) {
@@ -977,15 +1035,30 @@ public class Example extends JFrame {
             }
         }
 
-        for (j=0; j<yB; j++) {
-            for (i=0; i<xB; i++) {
+        for (j=0; j<yB-2; j++) {
+            for (i=0; i<xB-2; i++) {
                 for (c=0; c<3; c++) {
                     float foo = (float)j * (float)yA / (float)yB;
                     float bar = (float)i * (float)xA / (float)xB;
 
-                    y = (int)foo;
-                    x = (int)bar;
-                    bI[j][i][c] = aI[y][x][c];
+                    int y1 = (int)Math.floor(foo);
+                    int y2 = (int)y1 +1;
+                    int x1 = (int)Math.floor(bar);
+                    int x2 = (int)x1 +1;
+
+                    if (y2 < h){
+                        float a = aI[y2][x1][c];
+                        float b = aI[y1][x1][c];
+                        float c1 = aI[y1][x2][c];
+                        float d = aI[y2][x2][c];
+
+                        float f = b + (c1 - b) * ((bar-x1)/(x2-x1));
+                        float e = a + (d - a) * ((bar-x1)/(x2-x1));
+
+                        float g = f + (e - f) * ((foo-y1)/(y2-y1));
+                        bI[j][i][c] = g;
+                    }
+
                 }
             }
         }
@@ -1005,13 +1078,14 @@ public class Example extends JFrame {
         thumbnailFrame = new JFrame();
         thumbnailFrame.setVisible(true);
         thumbnailFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        thumbnailFrame.setSize(1920,80);
 
 
         JPanel p = new JPanel();
 
         JScrollPane scroll = new JScrollPane(p);
         thumbnailFrame.add(scroll);
-        //p.setLayout(new GridLayout(56, 10));
+        p.add(instruction);
 
 
         for(int i =0; i<256; i++) {
@@ -1044,15 +1118,29 @@ public class Example extends JFrame {
             }
         }
 
-        for (j=0; j<yB; j++) {
-            for (i=0; i<xB; i++) {
+        for (j=0; j<yB-2; j++) {
+            for (i=0; i<xB-2; i++) {
                 for (c=0; c<3; c++) {
                     float foo = (float)j * (float)yA / (float)yB;
                     float bar = (float)i * (float)xA / (float)xB;
 
-                    y = (int)foo;
-                    x = (int)bar;
-                    bI[j][i][c] = aI[y][x][c];
+                    int y1 = (int)Math.floor(foo);
+                    int y2 = (int)y1 +1;
+                    int x1 = (int)Math.floor(bar);
+                    int x2 = (int)x1 +1;
+
+                    if (y2 < h){
+                        float a = aI[y2][x1][c];
+                        float b = aI[y1][x1][c];
+                        float c1 = aI[y1][x2][c];
+                        float d = aI[y2][x2][c];
+
+                        float f = b + (c1 - b) * ((bar-x1)/(x2-x1));
+                        float e = a + (d - a) * ((bar-x1)/(x2-x1));
+
+                        float g = f + (e - f) * ((foo-y1)/(y2-y1));
+                        bI[j][i][c] = g;
+                    }
                 }
             }
         }
@@ -1072,14 +1160,13 @@ public class Example extends JFrame {
         thumbnailFrame = new JFrame();
         thumbnailFrame.setVisible(true);
         thumbnailFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-
+        thumbnailFrame.setSize(1920,80);
 
         JPanel p = new JPanel();
 
         JScrollPane scroll = new JScrollPane(p);
         thumbnailFrame.add(scroll);
-        //p.setLayout(new GridLayout(56, 10));
-
+        p.add(instruction);
 
         for(int i =0; i<256; i++) {
             BufferedImage iconImageNew = getThumbnailSide(image3, i, 70, 70);
